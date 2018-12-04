@@ -23,9 +23,9 @@ function p1 (x) {
   return 0.197293
     - 0.008033 * q
     - 0.00027 * (q * (q - 1) / factorial(2))
-    - 0.000206 * (q * (q - 1) * (q - 2) / factorial(3))
+    + 0.000206 * (q * (q - 1) * (q - 2) / factorial(3))
     - 0.000302 * (q * (q - 1) * (q - 2) * (q - 3) / factorial(4))
-    - 0.000488 * (q * (q - 1) * (q - 2) * (q - 3) * (q - 4) / factorial(5))
+    + 0.000488 * (q * (q - 1) * (q - 2) * (q - 3) * (q - 4) / factorial(5))
 }
 
 function p2 (x) {
@@ -34,9 +34,9 @@ function p2 (x) {
   return 0.155485
     - 0.008678 * q
     - 0.000151 * (q * (q + 1) / factorial(2))
-    - 0.000009 * (q * (q + 1) * (q + 2) / factorial(3))
-    - 0.000186 * (q * (q + 1) * (q + 2) * (q + 3) / factorial(4))
-    - 0.000488 * (q * (q + 1) * (q + 2) * (q + 3) * (q + 4) / factorial(5))
+    + 0.000009 * (q * (q + 1) * (q + 2) / factorial(3))
+    + 0.000186 * (q * (q + 1) * (q + 2) * (q + 3) / factorial(4))
+    + 0.000488 * (q * (q + 1) * (q + 2) * (q + 3) * (q + 4) / factorial(5))
 }
 
 function lagranzh (x) {
@@ -62,13 +62,38 @@ function lagranzh (x) {
     + c5 * (x - x0) * (x - x1) * (x - x2) * (x - x3) * (x - x4)
 }
 
-function getNearest (x) {
-  const array = [9, 9.02, 9.04, 9.08, 9.1]
-  return array.sort( (a, b) => Math.abs(x - a) - Math.abs(x - b) )[0]
+function getNearest1 (x) {
+  const arr = [9, 9.02, 9.04, 9.06, 9.08, 9.1]
+  const h = 0.02
+  const p = Math.pow(10, -10)
+  let i = 0
+  while (i <= 5) {
+    if (Math.abs(x - arr[i]) <= h/2 + p) {
+      return arr[i]
+    }
+    i++;
+  }
+
+  return arr[0]
+}
+
+function getNearest2 (x) {
+  const arr = [9, 9.02, 9.04, 9.06, 9.08, 9.1]
+  const h = 0.02
+  const p = Math.pow(10, -10)
+  let i = 5
+  while (i >= 0) {
+    if (Math.abs(x - arr[i]) <= h/2 + p) {
+      return arr[i]
+    }
+    i--;
+  }
+
+  return arr[5]
 }
 
 function p1d (x) {
-  const q = (x - getNearest(x)) / 0.02
+  const q = (x - getNearest1(x)) / 0.02
 
   return 1 / 0.02 * (
     -0.008033
@@ -80,7 +105,7 @@ function p1d (x) {
 }
 
 function p2d (x) {
-  const q = (x - getNearest(x)) / 0.02
+  const q = (x - getNearest2(x)) / 0.02
 
   return 1 / 0.02 * (
     -0.008678
@@ -144,6 +169,7 @@ rl.question('Введите x1, x2, x3 через пробел: ', (ans) => {
     'p1': r.p1res,
     'diff': r.p1Diff
   }))
+  console.log('Первая интерполяционная формула Ньютона')
   console.table(p1Results)
 
   const p2Results = results.map((r) => ({
@@ -152,6 +178,7 @@ rl.question('Введите x1, x2, x3 через пробел: ', (ans) => {
     'p2': r.p2res,
     'diff': r.p2Diff
   }))
+  console.log('Вторая интерполяционная формула Ньютона')
   console.table(p2Results)
 
   const lagResults = results.map((r) => ({
@@ -160,22 +187,27 @@ rl.question('Введите x1, x2, x3 через пробел: ', (ans) => {
     'p1': r.lagRes,
     'diff': r.lagDiff
   }))
+  console.log('Интерполяционная формула Лагранжа')
   console.table(lagResults)
 
   const p1dResults = results.map((r) => ({
     x: r.x,
     "y'": r.yd,
     "p1'": r.p1dRes,
+    "x0": getNearest1(r.x),
     'diff': r.p1dDiff
   }))
+  console.log('Численное дифференцирование, основанное на I ИФН')
   console.table(p1dResults)
 
   const p2dResults = results.map((r) => ({
     x: r.x,
     "y'": r.yd,
     "p2'": r.p2dRes,
+    "xn": getNearest2(r.x),
     'diff': r.p2dDiff
   }))
+  console.log('Численное дифференцирование, основанное на II ИФН')
   console.table(p2dResults)
 })
 
