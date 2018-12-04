@@ -22,7 +22,7 @@ function zeidel ({ x, y, z }) {
 }
 
 function getIterationEps (ans1, ans2) {
-  return Math.abs(ans2.x - ans1.x) + Math.abs(ans2.y - ans1.y) + Math.abs(ans2.y - ans1.y)
+  return Math.abs(ans2.x - ans1.x) + Math.abs(ans2.y - ans1.y) + Math.abs(ans2.z - ans1.z)
 }
 
 function performIterationMethod (initialValues, eps, method) {
@@ -31,16 +31,20 @@ function performIterationMethod (initialValues, eps, method) {
 
   let results = []
 
+  let i = 1
   while (getIterationEps(ans1, ans2) > eps) {
     results.push({
+      index: i,
       ...ans1,
-      eps: getIterationEps(ans1, ans2)
+      eps: getIterationEps(ans1, ans2),
     })
+    i++;
     
     ans1 = ans2
     ans2 = method(ans1)
   }
   results.push({
+    index: i,
     ...ans2,
     eps: getIterationEps(ans1, ans2)
   })
@@ -81,7 +85,7 @@ function shouldRelaxMethodEnd (ans, eps) {
   const rs = getRelaxRs(ans)
 
   Object.values(rs).forEach((r) => {
-    if (r > eps) {
+    if (Math.abs(r) > eps) {
       result = false
     }
   })
@@ -95,20 +99,24 @@ function performRelaxMethod (initialValues, eps) {
 
   let results = []
 
+  let i = 1
   while (shouldRelaxMethodEnd(ans2, eps) !== true) {
     const rs = getRelaxRs(ans1)
     results.push({
+      index: i,
       ...ans1,
       rx: rs.x,
       ry: rs.y,
       rz: rs.z
     })
+    i++
     
     ans1 = ans2
     ans2 = relaxMethod(ans1)
   }
   const rs = getRelaxRs(ans2)
   results.push({
+    index: i,
     ...ans2,
     rx: rs.x,
     ry: rs.y,
